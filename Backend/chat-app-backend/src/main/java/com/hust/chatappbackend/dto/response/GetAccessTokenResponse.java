@@ -7,8 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LoginResponse {
-    private String accessToken;
-    private String email;
-    private String fullName;
+public class GetAccessTokenResponse {
+    private String access_token;
 }

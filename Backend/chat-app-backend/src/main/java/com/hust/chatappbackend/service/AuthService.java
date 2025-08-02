@@ -2,8 +2,10 @@ package com.hust.chatappbackend.service;
 
 import com.hust.chatappbackend.config.GlobalConfig;
 import com.hust.chatappbackend.document.UserDocument;
+import com.hust.chatappbackend.dto.request.GetAccessTokenRequest;
 import com.hust.chatappbackend.dto.request.LoginRequest;
 import com.hust.chatappbackend.dto.request.SignUpRequest;
+import com.hust.chatappbackend.dto.response.GetAccessTokenResponse;
 import com.hust.chatappbackend.dto.response.LoginResponse;
 import com.hust.chatappbackend.dto.response.SignUpResponse;
 import com.hust.chatappbackend.exception.AppException;
@@ -58,12 +60,14 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         var accessToke = securityUtil.generateToken(authentication.getName(), false);
+        var userLogin = userService.findUserByEmail(authentication.getName());
         var res = LoginResponse.builder()
                 .accessToken(accessToke)
+                .email(authentication.getName())
+                .fullName(userLogin.getFullName())
                 .build();
         String refreshToken = securityUtil.generateToken(authentication.getName(), true);
         // save to database
-        var userLogin = userService.findUserByEmail(authentication.getName());
         userLogin.setRefreshToken(refreshToken);
         userService.save(userLogin);
 
@@ -77,5 +81,31 @@ public class AuthService {
                 .build();
 
         return Pair.of(res, cookie);
+    }
+
+    public ResponseCookie logout() {
+        String email = securityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException("Access token invalid!"));
+        var userLogin = userService.findUserByEmail(email);
+        userLogin.setRefreshToken(null);
+        userService.save(userLogin);
+        return ResponseCookie
+                .from("refresh_token", null)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+    }
+
+    public GetAccessTokenResponse getAccessToken(GetAccessTokenRequest getAccessTokenRequest) {
+
+        var decodeToken = securityUtil.decode(getAccessTokenRequest.getRefresh_token());
+        String email = decodeToken.getSubject();
+        //check user exist
+        userService.findUserByEmail(email);
+        return GetAccessTokenResponse.builder()
+                .access_token(securityUtil.generateToken(email, false))
+                .build();
     }
 }

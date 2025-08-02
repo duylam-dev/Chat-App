@@ -1,8 +1,10 @@
 package com.hust.chatappbackend.controller;
 
 import com.hust.chatappbackend.dto.ApiResponseCustom;
+import com.hust.chatappbackend.dto.request.GetAccessTokenRequest;
 import com.hust.chatappbackend.dto.request.LoginRequest;
 import com.hust.chatappbackend.dto.request.SignUpRequest;
+import com.hust.chatappbackend.dto.response.GetAccessTokenResponse;
 import com.hust.chatappbackend.dto.response.LoginResponse;
 import com.hust.chatappbackend.dto.response.SignUpResponse;
 import com.hust.chatappbackend.service.AuthService;
@@ -43,5 +45,27 @@ public class AuthController {
                         .data(res.getFirst())
                         .build()
                 );
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponseCustom<Void>> logout() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, authService.logout().toString())
+                .body(ApiResponseCustom.<Void>builder()
+                        .code(HttpStatus.OK.value())
+                        .message("Logout successful!")
+                        .build()
+                );
+    }
+
+    @PostMapping("/get-access-token")
+    public ResponseEntity<ApiResponseCustom<GetAccessTokenResponse>> getAccessToken(@Valid @RequestBody GetAccessTokenRequest getAccessTokenRequest) {
+        return ResponseEntity.ok(ApiResponseCustom.<GetAccessTokenResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get new access successful!")
+                .data(authService.getAccessToken(getAccessTokenRequest))
+                .build()
+        );
     }
 }

@@ -13,4 +13,14 @@ public class GlobalConfig {
     private long accessTokenDuration;
     @Value("${jwt.refreshToken.duration}")
     private long refreshTokenDuration;
+    @Value("${minio.put-object-part-size}")
+    private Long putObjectPartSize;
+    @Value("${minio.url}")
+    private String minioUrl;
+
+    @Value("${minio.username}")
+    private String minioUsername;
+
+    @Value("${minio.password}")
+    private String minioPassword;
 }

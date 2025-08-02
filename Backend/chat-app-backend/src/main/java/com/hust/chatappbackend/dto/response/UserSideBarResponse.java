@@ -1,14 +1,13 @@
 package com.hust.chatappbackend.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LoginResponse {
-    private String accessToken;
+public class UserSideBarResponse {
     private String email;
     private String fullName;
+    private String profilePicture;
 }

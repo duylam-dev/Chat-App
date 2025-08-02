@@ -1,6 +1,5 @@
 package com.hust.chatappbackend.document;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
