@@ -2,14 +2,13 @@ package com.hust.chatappbackend.service;
 
 import com.hust.chatappbackend.config.GlobalConfig;
 import com.hust.chatappbackend.document.UserDocument;
-import com.hust.chatappbackend.dto.request.GetAccessTokenRequest;
 import com.hust.chatappbackend.dto.request.LoginRequest;
 import com.hust.chatappbackend.dto.request.SignUpRequest;
 import com.hust.chatappbackend.dto.response.GetAccessTokenResponse;
 import com.hust.chatappbackend.dto.response.LoginResponse;
+import com.hust.chatappbackend.dto.response.ProfileResponse;
 import com.hust.chatappbackend.dto.response.SignUpResponse;
 import com.hust.chatappbackend.exception.AppException;
-import com.hust.chatappbackend.repository.UserRepository;
 import com.hust.chatappbackend.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +88,7 @@ public class AuthService {
         userLogin.setRefreshToken(null);
         userService.save(userLogin);
         return ResponseCookie
-                .from("refresh_token", null)
+                .from("refresh_token", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -97,10 +96,17 @@ public class AuthService {
                 .build();
 
     }
-
-    public GetAccessTokenResponse getAccessToken(GetAccessTokenRequest getAccessTokenRequest) {
-
-        var decodeToken = securityUtil.decode(getAccessTokenRequest.getRefresh_token());
+    public ProfileResponse getProfile(){
+        String email = securityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException("Access token invalid!"));
+        var userLogin = userService.findUserByEmail(email);
+        return ProfileResponse.builder()
+                .email(userLogin.getEmail())
+                .fullName(userLogin.getFullName())
+                .ImageUrl(userLogin.getProfilePicture())
+                .build();
+    }
+    public GetAccessTokenResponse getAccessToken(String refreshToken) {
+        var decodeToken = securityUtil.decode(refreshToken);
         String email = decodeToken.getSubject();
         //check user exist
         userService.findUserByEmail(email);

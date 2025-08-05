@@ -1,11 +1,11 @@
 package com.hust.chatappbackend.controller;
 
 import com.hust.chatappbackend.dto.ApiResponseCustom;
-import com.hust.chatappbackend.dto.request.GetAccessTokenRequest;
 import com.hust.chatappbackend.dto.request.LoginRequest;
 import com.hust.chatappbackend.dto.request.SignUpRequest;
 import com.hust.chatappbackend.dto.response.GetAccessTokenResponse;
 import com.hust.chatappbackend.dto.response.LoginResponse;
+import com.hust.chatappbackend.dto.response.ProfileResponse;
 import com.hust.chatappbackend.dto.response.SignUpResponse;
 import com.hust.chatappbackend.service.AuthService;
 import jakarta.validation.Valid;
@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -60,12 +57,22 @@ public class AuthController {
     }
 
     @PostMapping("/get-access-token")
-    public ResponseEntity<ApiResponseCustom<GetAccessTokenResponse>> getAccessToken(@Valid @RequestBody GetAccessTokenRequest getAccessTokenRequest) {
+    public ResponseEntity<ApiResponseCustom<GetAccessTokenResponse>> getAccessToken(@CookieValue("refresh_token") String refreshToken) {
         return ResponseEntity.ok(ApiResponseCustom.<GetAccessTokenResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get new access successful!")
-                .data(authService.getAccessToken(getAccessTokenRequest))
+                .data(authService.getAccessToken(refreshToken))
                 .build()
         );
+    }
+
+
+    @GetMapping("/get-profile")
+    public ResponseEntity<ApiResponseCustom<ProfileResponse>> getProfile() {
+        return ResponseEntity.ok(ApiResponseCustom.<ProfileResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Check auth successful!")
+                        .data(authService.getProfile())
+                .build());
     }
 }

@@ -23,10 +23,14 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/update-profile")
-    public ResponseEntity<UpdateProfileResponse> updateProfile(
+    public ResponseEntity<ApiResponseCustom<UpdateProfileResponse>> updateProfile(
             @RequestParam(name = "file", required = false) MultipartFile file
     ) {
-        return ResponseEntity.ok(userService.updateProfile(file));
+        return ResponseEntity.ok(ApiResponseCustom.<UpdateProfileResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Successfully updated profile")
+                .data(userService.updateProfile(file))
+                .build());
     }
 
     @GetMapping("/avatar/{uuid}")

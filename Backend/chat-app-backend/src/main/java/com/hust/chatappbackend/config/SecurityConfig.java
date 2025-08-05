@@ -1,5 +1,6 @@
 package com.hust.chatappbackend.config;
 
+import com.hust.chatappbackend.exception.AppException;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,7 +28,7 @@ import static com.hust.chatappbackend.util.SecurityUtil.JWT_ALGORITHM;
 public class SecurityConfig {
     private final GlobalConfig globalConfig;
     public static final String[] PUBLIC_ENDPOINT = {
-            "/", "/auth/signup", "/auth/login"
+            "/", "/auth/signup", "/auth/login","/auth/get-access-token", "/user/avatar/**"
     };
 
     @Bean
@@ -74,8 +72,7 @@ public class SecurityConfig {
                 return jwtDecoder.decode(token);
             } catch (Exception e) {
                 log.error(">>> JWT error: {}", e.getMessage());
-                throw e;
-            }
+                throw new JwtException("Invalid or expired JWT: " + e.getMessage());            }
         };
     }
 

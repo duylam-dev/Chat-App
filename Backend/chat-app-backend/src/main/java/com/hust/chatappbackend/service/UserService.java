@@ -52,7 +52,7 @@ public class UserService {
 
 
     public InputStream getProfilePicture(UUID uuid) {
-        return minioUtil.getInputStream(uuid, 0, -1);
+        return minioUtil.getInputStream("avatar", uuid, 0, -1);
     }
 
 
